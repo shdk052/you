@@ -21,10 +21,12 @@ def download_audio():
         
         ydl_opts = {
             'format': 'bestaudio/best',  # הורד רק אודיו
+            # הוספת ffmpeg_location: 'ffmpeg' גורמת ל-yt-dlp לחפש את הכלי
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',  # המר ל-MP3
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
+                'ffmpeg_location': 'ffmpeg', # הוספנו את זה כדי לעזור ל-yt-dlp למצוא את הכלי
             }],
             'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),  # שם הקובץ: שם הסרטון, בתיקיית הורדות
             'noplaylist': True,  # הורד רק סרטון אחד
@@ -37,9 +39,5 @@ def download_audio():
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'אירעה שגיאה: {str(e)}'}), 500
 
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
-
-
+# הסרנו את if __name__ == '__main__': כדי לאפשר ל-Gunicorn לרוץ ישירות.
+# Gunicorn יקרא את הפקודה הזו: gunicorn --bind 0.0.0.0:$PORT you:app
