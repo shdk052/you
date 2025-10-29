@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מוריד שירים מיוטיוב</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>הורדת אודיו מיוטיוב</h1>
+        <form id="downloadForm">
+            <label for="youtubeLink">הכנס קישור לסרטון יוטיוב:</label>
+            <input type="text" id="youtubeLink" name="youtubeLink" placeholder="הדבק קישור לכאן..." required>
+            <button type="submit">הורד</button>
+        </form>
+        <p id="statusMessage"></p>
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const link = document.getElementById('youtubeLink').value;
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = 'מוריד... אנא המתן.';
+            statusMessage.style.color = 'blue';
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ link: link })
+                });
+                const data = await response.json();
+                statusMessage.textContent = data.message;
+                statusMessage.style.color = data.status === 'success' ? 'green' : 'red';
+            } catch (error) {
+                statusMessage.textContent = 'אירעה שגיאה בעת הבקשה.';
+                statusMessage.style.color = 'red';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
