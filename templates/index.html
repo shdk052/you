@@ -22,7 +22,8 @@
             event.preventDefault();
             const link = document.getElementById('youtubeLink').value;
             const statusMessage = document.getElementById('statusMessage');
-            statusMessage.textContent = 'מוריד... אנא המתן.';
+            
+            statusMessage.textContent = 'מוריד... אנא המתן (עד 2 דקות).'; // שינינו את ההודעה כדי להתאים ל-timeout
             statusMessage.style.color = 'blue';
 
             try {
@@ -33,11 +34,47 @@
                     },
                     body: JSON.stringify({ link: link })
                 });
-                const data = await response.json();
-                statusMessage.textContent = data.message;
-                statusMessage.style.color = data.status === 'success' ? 'green' : 'red';
+
+                // *** לוגיקת טיפול חדשה: בדיקה אם התגובה היא קובץ או JSON שגיאה ***
+                if (response.ok) {
+                    // 1. השרת הצליח לשלוח קובץ (קוד 200)
+                    statusMessage.textContent = '✅ ההורדה החלה!';
+                    statusMessage.style.color = 'green';
+                    
+                    // 2. יצירת קישור להורדה אוטומטית מהתגובה הבינארית (blob)
+                    const blob = await response.blob();
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let fileName = 'download.mp3'; // שם ברירת מחדל
+
+                    if (contentDisposition) {
+                        // חילוץ שם הקובץ מכותרת ה-Content-Disposition
+                        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (fileNameMatch && fileNameMatch.length === 2) {
+                            // שימוש בשם הקובץ הנכון
+                            fileName = fileNameMatch[1].replace(/_/g, ' '); 
+                        }
+                    }
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName; 
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    
+                    statusMessage.textContent = '✅ השיר ירד בהצלחה!';
+
+                } else {
+                    // 3. השרת החזיר שגיאת JSON (כמו קוד 500)
+                    const errorData = await response.json();
+                    statusMessage.textContent = errorData.message;
+                    statusMessage.style.color = 'red';
+                }
+
             } catch (error) {
-                statusMessage.textContent = 'אירעה שגיאה בעת הבקשה.';
+                statusMessage.textContent = 'אירעה שגיאה: לא הצלחתי להתחבר לשרת או שהזמן קצוב פג.';
                 statusMessage.style.color = 'red';
                 console.error('Error:', error);
             }
