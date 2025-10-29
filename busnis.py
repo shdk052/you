@@ -1,23 +1,43 @@
-from flask import Flask, render_template, request, jsonify
 import yt_dlp
+import os
+from flask import Flask, request, jsonify, render_template
+
 app = Flask(__name__)
 
-def tube():
-    link = input("הכנס קישור לסרטון יוטיוב: ")
-    
-    ydl_opts = {
-        'format': 'bestaudio/best',  # הורד רק אודיו
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',  # המר ל-MP3
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': '%(title)s.%(ext)s',  # שם הקובץ: שם הסרטון
-        'noplaylist': True,  # הורד רק סרטון אחד
-    }
-    
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([link])
-    
-    print("✅ השיר הורד בהצלחה!")
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/download', methods=['POST'])
+def download_audio():
+    link = request.json.get('link')
+    if not link:
+        return jsonify({'status': 'error', 'message': 'לא נשלח קישור.'}), 400
+
+    try:
+        # Ensure the downloads directory exists
+        download_dir = 'downloads'
+        os.makedirs(download_dir, exist_ok=True)
+        
+        ydl_opts = {
+            'format': 'bestaudio/best',  # הורד רק אודיו
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',  # המר ל-MP3
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),  # שם הקובץ: שם הסרטון, בתיקיית הורדות
+            'noplaylist': True,  # הורד רק סרטון אחד
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([link])
+        
+        return jsonify({'status': 'success', 'message': '✅ השיר הורד בהצלחה!'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'אירעה שגיאה: {str(e)}'}), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
