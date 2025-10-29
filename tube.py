@@ -25,18 +25,27 @@ def download_audio():
                 'key': 'FFmpegExtractAudio',  # המר ל-MP3
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
-                # הסרנו את 'ffmpeg_location': 'ffmpeg' שמקודם, כיוון שהוא גרם לשגיאה.
+                # הסרנו את 'ffmpeg_location', כיוון שהוא גרם לשגיאת Python קודם לכן.
             }],
             'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),  # שם הקובץ: שם הסרטון, בתיקיית הורדות
             'noplaylist': True,  # הורד רק סרטון אחד
         }
         
+        # *** הוספנו פה לוגיקה נוספת: הכרחה להתקנת ffmpeg באמצעות yt-dlp אם הוא חסר ***
+        # yt-dlp יכולה להתקין את הכלים החסרים לה אם נדרש
+        import subprocess
+        try:
+             subprocess.run(['ffmpeg', '-version'], check=True, capture_output=True)
+        except (FileNotFoundError, subprocess.CalledProcessError):
+             # אם ffmpeg לא נמצא, ננסה להכריח עדכון/התקנה
+             print("ffmpeg not found in PATH. Attempting yt-dlp update/install...")
+             subprocess.run(['yt-dlp', '-U'], check=True) # זה ינסה לעדכן, ובתהליך יכול להוריד קבצים נוספים.
+             
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([link])
         
         return jsonify({'status': 'success', 'message': '✅ השיר הורד בהצלחה!'})
     except Exception as e:
-        # הקוד עדיין ייתן שגיאה אם FFmpeg לא הותקן, אבל אם הכל עבד זה יציין שגיאה אחרת.
         return jsonify({'status': 'error', 'message': f'אירעה שגיאה: {str(e)}'}), 500
 
-# *** הסרנו את if __name__ == '__main__': כדי לאפשר ל-Gunicorn לרוץ ישירות. ***
+# הסרנו את if __name__ == '__main__': כדי לאפשר ל-Gunicorn לרוץ ישירות.
