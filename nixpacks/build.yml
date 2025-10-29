@@ -1,4 +1,0 @@
-phases:
-  setup:
-    nix_packages:
-      - ffmpeg
