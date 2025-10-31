@@ -88,9 +88,9 @@
             }
         });
 
-        // יצירת כוכבים קבועים עם הבהוב עדין
+        // יצירת כוכבים קבועים - הרבה יותר
         function createStars() {
-            const starCount = 50;
+            const starCount = 120;
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -100,7 +100,7 @@
                 
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
-                star.style.width = Math.random() * 2 + 1 + 'px';
+                star.style.width = Math.random() * 1.5 + 1 + 'px';
                 star.style.height = star.style.width;
                 
                 const delay = Math.random() * 4;
