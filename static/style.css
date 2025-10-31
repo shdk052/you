@@ -18,7 +18,7 @@ body {
     padding: 20px;
 }
 
-/* כוכבים לבנים קבועים */
+/* כוכבים וניצנוצים */
 .star {
     position: fixed;
     width: 2px;
@@ -27,7 +27,6 @@ body {
     border-radius: 50%;
     pointer-events: none;
     animation: twinkle 3s ease-in-out infinite;
-    z-index: 1;
 }
 
 @keyframes twinkle {
@@ -35,49 +34,66 @@ body {
     50% { opacity: 1; }
 }
 
-/* כוכבי שביט - נופלים ישר למטה */
+/* כוכבי שביט נופלים */
 .meteor {
     position: fixed;
-    width: 8px;
-    height: 8px;
-    background: radial-gradient(circle, white 0%, rgba(255, 255, 255, 0.8) 40%, rgba(54, 176, 196, 0.6) 100%);
+    width: 3px;
+    height: 3px;
+    background: white;
     border-radius: 50%;
     pointer-events: none;
-    box-shadow: 
-        0 0 15px 3px rgba(255, 255, 255, 1),
-        0 0 35px 6px rgba(54, 176, 196, 0.9);
-    z-index: 2;
-}
-
-.meteor::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 1px;
-    height: 200px;
-    background: linear-gradient(180deg, 
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(54, 176, 196, 0.7) 30%,
-        rgba(78, 214, 236, 0.5) 60%,
-        transparent 100%);
-    transform: translateX(-50%);
-    filter: blur(2px);
+    box-shadow: 0 0 20px 3px rgba(255, 255, 255, 1),
+                0 0 40px 5px rgba(255, 255, 255, 0.8);
+    animation: meteorFall 2.5s linear forwards;
 }
 
 @keyframes meteorFall {
     0% {
-        top: -50px;
         opacity: 1;
+        transform: translateY(0);
     }
     100% {
-        top: 100vh;
         opacity: 0;
+        transform: translateY(100vh);
     }
 }
 
+/* זוהר עדין ברקע */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(54, 176, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(42, 149, 168, 0.08) 0%, transparent 50%);
+    animation: subtleGlow 6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes subtleGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, transparent 30%, rgba(54, 176, 196, 0.03) 50%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
 .container {
-    background: linear-gradient(145deg, rgba(13, 94, 110, 0.92) 0%, rgba(10, 72, 85, 0.95) 100%);
+    background: linear-gradient(145deg, rgba(13, 94, 110, 0.9) 0%, rgba(10, 72, 85, 0.95) 100%);
     backdrop-filter: blur(25px);
     padding: 50px;
     border-radius: 25px;
@@ -106,7 +122,7 @@ body {
 h1 {
     color: #c8f0f7;
     font-size: 2.2em;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     text-align: center;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     letter-spacing: 1px;
@@ -115,50 +131,56 @@ h1 {
 form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-bottom: 25px;
+    gap: 25px;
+    margin-bottom: 30px;
 }
 
 label {
     color: #9dd9e6;
-    font-size: 1em;
+    font-size: 1.1em;
     text-align: right;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 input[type="url"] {
-    padding: 15px 18px;
-    border: 2px solid rgba(54, 176, 196, 0.35);
-    border-radius: 12px;
-    font-size: 15px;
+    padding: 18px 22px;
+    border: 2px solid rgba(54, 176, 196, 0.4);
+    border-radius: 15px;
+    font-size: 16px;
     font-family: 'Varela Round', sans-serif;
-    background: rgba(10, 79, 92, 0.5);
+    background: linear-gradient(135deg, rgba(10, 79, 92, 0.6) 0%, rgba(14, 89, 105, 0.6) 100%);
     color: #d4f4f9;
     outline: none;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 input[type="url"]::placeholder {
-    color: rgba(180, 230, 240, 0.4);
+    color: rgba(180, 230, 240, 0.5);
 }
 
 input[type="url"]:focus {
     border-color: #36b0c4;
-    background: rgba(14, 89, 105, 0.7);
-    box-shadow: 0 0 20px rgba(54, 176, 196, 0.3);
+    background: linear-gradient(135deg, rgba(14, 89, 105, 0.8) 0%, rgba(22, 110, 128, 0.8) 100%);
+    box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.3),
+        0 0 0 6px rgba(54, 176, 196, 0.2),
+        0 0 30px rgba(54, 176, 196, 0.4);
+    transform: translateY(-3px);
 }
 
 button {
-    padding: 15px 28px;
+    padding: 18px 30px;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 15px;
+    font-size: 18px;
     font-family: 'Varela Round', sans-serif;
     font-weight: 400;
     cursor: pointer;
     background: linear-gradient(135deg, #2a95a8 0%, #36b0c4 50%, #42c4d8 100%);
     color: #083540;
-    box-shadow: 0 8px 25px rgba(54, 176, 196, 0.4);
+    box-shadow: 0 8px 30px rgba(54, 176, 196, 0.5),
+                inset 0 2px 1px rgba(255, 255, 255, 0.25);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -171,8 +193,8 @@ button::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.6s ease;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transition: left 0.7s ease;
 }
 
 button:hover::before {
@@ -180,8 +202,10 @@ button:hover::before {
 }
 
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(54, 176, 196, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 50px rgba(54, 176, 196, 0.7),
+                0 0 60px rgba(54, 176, 196, 0.5),
+                inset 0 2px 1px rgba(255, 255, 255, 0.3);
     background: linear-gradient(135deg, #36b0c4 0%, #42c4d8 50%, #4ed6ec 100%);
 }
 
@@ -190,14 +214,15 @@ button:active {
 }
 
 #statusMessage {
-    margin-top: 20px;
-    padding: 15px 20px;
-    border-radius: 12px;
-    font-size: 1em;
+    margin-top: 25px;
+    padding: 18px 25px;
+    border-radius: 15px;
+    font-size: 1.1em;
     text-align: center;
     font-family: 'Varela Round', sans-serif;
     min-height: 20px;
-    transition: all 0.4s ease;
+    transition: all 0.5s ease;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 #statusMessage:empty {
@@ -210,14 +235,15 @@ button:active {
     border: 2px solid rgba(54, 176, 196, 0.5);
     color: #9dd9e6;
     animation: downloadPulse 1.5s ease-in-out infinite;
-    box-shadow: 0 5px 20px rgba(54, 176, 196, 0.3);
+    box-shadow: 0 5px 25px rgba(54, 176, 196, 0.3),
+                inset 0 1px 1px rgba(54, 176, 196, 0.2);
     position: relative;
     overflow: hidden;
 }
 
 @keyframes downloadPulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
 }
 
 .downloading::before {
@@ -228,10 +254,10 @@ button:active {
     height: 3px;
     width: 100%;
     background: linear-gradient(90deg, transparent, #36b0c4, #4ed6ec, #62e8ff, transparent);
-    animation: progressShine 2s ease-in-out infinite;
+    animation: downloadShine 1.5s ease-in-out infinite;
 }
 
-@keyframes progressShine {
+@keyframes downloadShine {
     0% { opacity: 0; }
     50% { opacity: 1; }
     100% { opacity: 0; }
@@ -240,12 +266,13 @@ button:active {
 .downloading::after {
     content: '⟳';
     position: absolute;
-    right: 15px;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 20px;
+    font-size: 24px;
     animation: spin 1.2s linear infinite;
     color: #4ed6ec;
+    text-shadow: 0 0 15px rgba(78, 214, 236, 0.8);
 }
 
 @keyframes spin {
@@ -257,12 +284,14 @@ button:active {
     background: linear-gradient(135deg, rgba(54, 176, 196, 0.4) 0%, rgba(78, 214, 236, 0.4) 100%);
     border: 2px solid rgba(98, 232, 255, 0.6);
     color: #62e8ff;
-    animation: successBounce 0.6s ease-out;
-    box-shadow: 0 8px 25px rgba(98, 232, 255, 0.4);
+    animation: successBounce 0.7s ease-out;
+    box-shadow: 0 8px 35px rgba(98, 232, 255, 0.5),
+                0 0 50px rgba(98, 232, 255, 0.3),
+                inset 0 1px 1px rgba(98, 232, 255, 0.3);
 }
 
 @keyframes successBounce {
-    0% { transform: scale(0.9); opacity: 0; }
+    0% { transform: scale(0.8); opacity: 0; }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); opacity: 1; }
 }
@@ -271,14 +300,15 @@ button:active {
     background: linear-gradient(135deg, rgba(255, 107, 138, 0.3) 0%, rgba(200, 50, 80, 0.3) 100%);
     border: 2px solid rgba(255, 107, 138, 0.5);
     color: #ff6b8a;
-    animation: errorShake 0.5s ease-out;
-    box-shadow: 0 5px 20px rgba(255, 107, 138, 0.3);
+    animation: errorShake 0.6s ease-out;
+    box-shadow: 0 5px 25px rgba(255, 107, 138, 0.4),
+                inset 0 1px 1px rgba(255, 107, 138, 0.2);
 }
 
 @keyframes errorShake {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
 }
 
 @media (max-width: 600px) {
@@ -291,13 +321,8 @@ button:active {
         margin-bottom: 25px;
     }
     
-    input[type="url"] {
-        font-size: 14px;
-        padding: 13px 15px;
-    }
-    
     button {
-        font-size: 15px;
-        padding: 13px 22px;
+        font-size: 16px;
+        padding: 16px 25px;
     }
 }
