@@ -7,47 +7,56 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <!-- חלקיקים צפים -->
+    <div class="floating-particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="floating-particle" style="left: 25%; animation-delay: 3s;"></div>
+    <div class="floating-particle" style="left: 40%; animation-delay: 6s;"></div>
+    <div class="floating-particle" style="left: 55%; animation-delay: 9s;"></div>
+    <div class="floating-particle" style="left: 70%; animation-delay: 12s;"></div>
+    <div class="floating-particle" style="left: 85%; animation-delay: 15s;"></div>
+    
     <div class="container">
         <h1>🎵 הורדת אודיו מיוטיוב</h1>
         <form id="downloadForm">
             <label for="youtubeLink">הכנס קישור לסרטון יוטיוב:</label>
-            <input type="url" id="youtubeLink" name="youtubeLink" placeholder="https://youtube.com/..." required>
-            <button type="submit">🚀 הורד עכשיו</button>
+            <input type="text" id="youtubeLink" name="youtubeLink" placeholder="הדבק קישור לכאן..." required autocomplete="off">
+            <button type="submit">🚀 הורד</button>
         </form>
-        <div id="statusMessage"></div>
+        <p id="statusMessage"></p>
     </div>
 
     <script>
-        const form = document.getElementById('downloadForm');
-        const input = document.getElementById('youtubeLink');
-        const statusMsg = document.getElementById('statusMessage');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const link = input.value;
+        document.getElementById('downloadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const link = document.getElementById('youtubeLink').value;
+            const statusMessage = document.getElementById('statusMessage');
             
-            statusMsg.className = 'downloading';
-            statusMsg.textContent = '⏳ מוריד... אנא המתן (עד 2 דקות)';
+            statusMessage.className = 'downloading';
+            statusMessage.textContent = 'מוריד... אנא המתן (עד 2 דקות).';
+            statusMessage.style.color = '#b8e6f0';
 
             try {
                 const response = await fetch('/download', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ link: link })
                 });
 
                 if (response.ok) {
-                    statusMsg.className = 'success';
-                    statusMsg.textContent = '✅ ההורדה החלה!';
+                    statusMessage.className = '';
+                    statusMessage.textContent = '✅ ההורדה החלה!';
+                    statusMessage.style.color = '#5ee0f5';
                     
                     const blob = await response.blob();
                     const contentDisposition = response.headers.get('content-disposition');
                     let fileName = 'download.mp3';
 
                     if (contentDisposition) {
-                        const match = contentDisposition.match(/filename="(.+)"/);
-                        if (match && match[1]) {
-                            fileName = match[1].replace(/_/g, ' '); 
+                        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (fileNameMatch && fileNameMatch.length === 2) {
+                            fileName = fileNameMatch[1].replace(/_/g, ' '); 
                         }
                     }
 
@@ -60,18 +69,21 @@
                     a.remove();
                     window.URL.revokeObjectURL(url);
                     
-                    statusMsg.className = 'success';
-                    statusMsg.textContent = '🎉 השיר ירד בהצלחה!';
+                    statusMessage.className = 'success';
+                    statusMessage.textContent = '✅ השיר ירד בהצלחה!';
+                    statusMessage.style.color = '#5ee0f5';
 
                 } else {
                     const errorData = await response.json();
-                    statusMsg.className = 'error';
-                    statusMsg.textContent = '❌ ' + errorData.message;
+                    statusMessage.className = 'error';
+                    statusMessage.textContent = errorData.message;
+                    statusMessage.style.color = '#ff6b8a';
                 }
 
             } catch (error) {
-                statusMsg.className = 'error';
-                statusMsg.textContent = '❌ שגיאה: לא הצלחתי להתחבר לשרת';
+                statusMessage.className = 'error';
+                statusMessage.textContent = 'אירעה שגיאה: לא הצלחתי להתחבר לשרת או שהזמן קצוב פג.';
+                statusMessage.style.color = '#ff6b8a';
                 console.error('Error:', error);
             }
         });
@@ -105,10 +117,9 @@
             const meteor = document.createElement('div');
             meteor.className = 'meteor';
             
-            // התחלה אקראית לגמרי
             const startX = Math.random() * window.innerWidth;
             const startY = -50;
-            const endX = startX + (Math.random() * 200 - 100); // כיוון אקראי
+            const endX = startX + (Math.random() * 200 - 100);
             
             meteor.style.left = startX + 'px';
             meteor.style.top = startY + 'px';
