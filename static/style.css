@@ -1,336 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מוריד שירים מיוטיוב</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 הורדת אודיו מיוטיוב</h1>
+        <form id="downloadForm">
+            <label for="youtubeLink">הכנס קישור לסרטון יוטיוב:</label>
+            <input type="text" id="youtubeLink" name="youtubeLink" placeholder="הדבק קישור לכאן..." required autocomplete="off">
+            <button type="submit">🚀 הורד</button>
+        </form>
+        <div id="statusMessage"></div>
+    </div>
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    <script>
+        document.getElementById('downloadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const link = document.getElementById('youtubeLink').value;
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusMessage.className = 'downloading';
+            statusMessage.textContent = 'מוריד... אנא המתן (עד 2 דקות).';
 
-body {
-    font-family: 'Varela Round', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0a4f5c 0%, #165e6d 25%, #1e7a8c 50%, #2a95a8 75%, #36b0c4 100%);
-    position: relative;
-    overflow: hidden;
-    padding: 20px;
-}
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ link: link })
+                });
 
-/* שכבות רקע מתחלפות */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(54, 176, 196, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(42, 149, 168, 0.1) 0%, transparent 40%);
-    animation: backgroundShift 8s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 0;
-}
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let fileName = 'download.mp3';
 
-@keyframes backgroundShift {
-    0%, 100% {
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 1;
-    }
-}
+                    if (contentDisposition) {
+                        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (fileNameMatch && fileNameMatch.length === 2) {
+                            fileName = fileNameMatch[1].replace(/_/g, ' '); 
+                        }
+                    }
 
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        linear-gradient(45deg, transparent 30%, rgba(54, 176, 196, 0.02) 50%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-}
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName; 
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    
+                    statusMessage.className = 'success';
+                    statusMessage.textContent = '✅ השיר ירד בהצלחה!';
 
-.container {
-    background: linear-gradient(180deg, rgba(14, 89, 105, 0.98) 0%, rgba(22, 110, 128, 0.98) 100%);
-    backdrop-filter: blur(15px);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 480px;
-    position: relative;
-    z-index: 10;
-    border: 1px solid rgba(54, 176, 196, 0.25);
-    animation: containerGlow 4s ease-in-out infinite;
-}
+                } else {
+                    const errorData = await response.json();
+                    statusMessage.className = 'error';
+                    statusMessage.textContent = '❌ ' + errorData.message;
+                }
 
-@keyframes containerGlow {
-    0%, 100% {
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
-                    0 0 0 rgba(54, 176, 196, 0);
-    }
-    50% {
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
-                    0 0 25px rgba(54, 176, 196, 0.2);
-    }
-}
-
-h1 {
-    color: #d4f4f9;
-    font-size: 2em;
-    margin-bottom: 30px;
-    text-align: center;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    letter-spacing: 0.5px;
-    font-weight: 400;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-bottom: 25px;
-}
-
-label {
-    color: #b8e6f0;
-    font-size: 0.95em;
-    text-align: right;
-    text-shadow: none;
-    font-weight: 400;
-}
-
-input[type="text"] {
-    padding: 13px 16px;
-    border: 1.5px solid rgba(54, 176, 196, 0.5);
-    border-radius: 8px;
-    font-size: 15px;
-    font-family: 'Varela Round', sans-serif;
-    background: rgba(10, 79, 92, 0.4);
-    color: #d4f4f9;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-input[type="text"]::placeholder {
-    color: rgba(180, 230, 240, 0.4);
-}
-
-input[type="text"]:focus {
-    border-color: #36b0c4;
-    background: rgba(14, 89, 105, 0.6);
-    box-shadow: 0 0 15px rgba(54, 176, 196, 0.2),
-                inset 0 0 10px rgba(54, 176, 196, 0.1);
-    transform: scale(1.01);
-}
-
-button {
-    background: linear-gradient(135deg, #2a95a8 0%, #36b0c4 100%);
-    color: #0a4f5c;
-    padding: 13px 26px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    font-family: 'Varela Round', sans-serif;
-    font-weight: 400;
-    transition: all 0.2s linear;
-    box-shadow: 0 4px 15px rgba(54, 176, 196, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s ease;
-}
-
-button:hover::before {
-    left: 100%;
-}
-
-button:hover {
-    background: linear-gradient(135deg, #36b0c4 0%, #42c4d8 100%);
-    box-shadow: 0 6px 20px rgba(54, 176, 196, 0.4);
-}
-
-button:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 8px rgba(54, 176, 196, 0.2);
-}
-
-#statusMessage {
-    margin-top: 20px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.95em;
-    text-align: center;
-    font-family: 'Varela Round', sans-serif;
-    min-height: 18px;
-    transition: all 0.3s ease;
-    text-shadow: none;
-}
-
-#statusMessage:empty {
-    padding: 0;
-    margin: 0;
-}
-
-#statusMessage:not(:empty) {
-    animation: messagePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-@keyframes messagePop {
-    0% {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.downloading {
-    background: rgba(54, 176, 196, 0.2);
-    border: 1.5px solid rgba(54, 176, 196, 0.4);
-    color: #9dd9e6;
-    box-shadow: 0 3px 12px rgba(54, 176, 196, 0.2),
-                inset 0 0 8px rgba(54, 176, 196, 0.1);
-    position: relative;
-    overflow: hidden;
-    animation: downloadPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes downloadPulse {
-    0%, 100% {
-        background: rgba(54, 176, 196, 0.2);
-    }
-    50% {
-        background: rgba(54, 176, 196, 0.35);
-    }
-}
-
-.downloading::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 100%;
-    background: linear-gradient(90deg, transparent, #36b0c4, #4ac9dc, transparent);
-    animation: shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% {
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.downloading::after {
-    content: '⟳';
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    animation: spin 1.2s linear infinite;
-    color: #4ac9dc;
-}
-
-@keyframes spin {
-    0% { transform: translateY(-50%) rotate(0deg); }
-    100% { transform: translateY(-50%) rotate(360deg); }
-}
-
-.success {
-    background: rgba(94, 224, 245, 0.25);
-    border: 1.5px solid rgba(94, 224, 245, 0.5);
-    color: #5ee0f5;
-    box-shadow: 0 3px 12px rgba(94, 224, 245, 0.2);
-    animation: successPulse 0.6s ease-out;
-}
-
-@keyframes successPulse {
-    0% {
-        transform: scale(0.9);
-        opacity: 0;
-    }
-    60% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.error {
-    background: rgba(255, 107, 138, 0.2);
-    border: 1.5px solid rgba(255, 107, 138, 0.4);
-    color: #ff6b8a;
-    box-shadow: 0 3px 12px rgba(255, 107, 138, 0.2);
-    animation: errorWiggle 0.4s ease-out;
-}
-
-@keyframes errorWiggle {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-4px); }
-    40% { transform: translateX(4px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 30px 20px;
-        border-radius: 16px;
-    }
-    
-    h1 {
-        font-size: 1.6em;
-        margin-bottom: 25px;
-    }
-    
-    form {
-        gap: 16px;
-    }
-    
-    label {
-        font-size: 0.9em;
-    }
-    
-    input[type="text"] {
-        padding: 12px 14px;
-        font-size: 14px;
-        border-radius: 6px;
-    }
-    
-    button {
-        padding: 12px 22px;
-        font-size: 14px;
-        border-radius: 6px;
-    }
-    
-    #statusMessage {
-        padding: 10px 14px;
-        font-size: 0.9em;
-        border-radius: 6px;
-    }
-}
+            } catch (error) {
+                statusMessage.className = 'error';
+                statusMessage.textContent = '❌ שגיאה: לא הצלחתי להתחבר לשרת';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
