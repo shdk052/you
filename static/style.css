@@ -18,46 +18,42 @@ body {
     padding: 20px;
 }
 
-/* כוכבים לבנים קבועים */
-.star {
+/* שכבות רקע מתחלפות */
+body::before {
+    content: '';
     position: fixed;
-    width: 2px;
-    height: 2px;
-    background: white;
-    border-radius: 50%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(54, 176, 196, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(42, 149, 168, 0.1) 0%, transparent 40%);
+    animation: backgroundShift 8s ease-in-out infinite;
     pointer-events: none;
-    animation: twinkle 3s ease-in-out infinite;
-    z-index: 1;
+    z-index: 0;
 }
 
-@keyframes twinkle {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-}
-
-/* כוכבי שביט - נופלים ישר למטה */
-.meteor {
-    position: fixed;
-    width: 3px;
-    height: 3px;
-    background: white;
-    border-radius: 50%;
-    pointer-events: none;
-    box-shadow: 0 0 20px 3px rgba(255, 255, 255, 1),
-                0 0 40px 5px rgba(255, 255, 255, 0.8);
-    animation: meteorFall 2.5s linear forwards;
-    z-index: 2;
-}
-
-@keyframes meteorFall {
-    0% {
+@keyframes backgroundShift {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
         opacity: 1;
-        transform: translateY(0);
     }
-    100% {
-        opacity: 0;
-        transform: translateY(100vh);
-    }
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, transparent 30%, rgba(54, 176, 196, 0.02) 50%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .container {
@@ -71,6 +67,18 @@ body {
     position: relative;
     z-index: 10;
     border: 1px solid rgba(54, 176, 196, 0.25);
+    animation: containerGlow 4s ease-in-out infinite;
+}
+
+@keyframes containerGlow {
+    0%, 100% {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
+                    0 0 0 rgba(54, 176, 196, 0);
+    }
+    50% {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
+                    0 0 25px rgba(54, 176, 196, 0.2);
+    }
 }
 
 h1 {
@@ -107,7 +115,7 @@ input[type="text"] {
     background: rgba(10, 79, 92, 0.4);
     color: #d4f4f9;
     outline: none;
-    transition: all 0.2s linear;
+    transition: all 0.3s ease;
 }
 
 input[type="text"]::placeholder {
@@ -117,7 +125,9 @@ input[type="text"]::placeholder {
 input[type="text"]:focus {
     border-color: #36b0c4;
     background: rgba(14, 89, 105, 0.6);
-    box-shadow: 0 0 15px rgba(54, 176, 196, 0.2);
+    box-shadow: 0 0 15px rgba(54, 176, 196, 0.2),
+                inset 0 0 10px rgba(54, 176, 196, 0.1);
+    transform: scale(1.01);
 }
 
 button {
@@ -169,7 +179,7 @@ button:active {
     text-align: center;
     font-family: 'Varela Round', sans-serif;
     min-height: 18px;
-    transition: all 0.3s linear;
+    transition: all 0.3s ease;
     text-shadow: none;
 }
 
@@ -178,13 +188,39 @@ button:active {
     margin: 0;
 }
 
+#statusMessage:not(:empty) {
+    animation: messagePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes messagePop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .downloading {
     background: rgba(54, 176, 196, 0.2);
     border: 1.5px solid rgba(54, 176, 196, 0.4);
     color: #9dd9e6;
-    box-shadow: 0 3px 12px rgba(54, 176, 196, 0.2);
+    box-shadow: 0 3px 12px rgba(54, 176, 196, 0.2),
+                inset 0 0 8px rgba(54, 176, 196, 0.1);
     position: relative;
     overflow: hidden;
+    animation: downloadPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes downloadPulse {
+    0%, 100% {
+        background: rgba(54, 176, 196, 0.2);
+    }
+    50% {
+        background: rgba(54, 176, 196, 0.35);
+    }
 }
 
 .downloading::before {
@@ -195,6 +231,16 @@ button:active {
     height: 2px;
     width: 100%;
     background: linear-gradient(90deg, transparent, #36b0c4, #4ac9dc, transparent);
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 .downloading::after {
@@ -218,6 +264,21 @@ button:active {
     border: 1.5px solid rgba(94, 224, 245, 0.5);
     color: #5ee0f5;
     box-shadow: 0 3px 12px rgba(94, 224, 245, 0.2);
+    animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .error {
@@ -225,6 +286,15 @@ button:active {
     border: 1.5px solid rgba(255, 107, 138, 0.4);
     color: #ff6b8a;
     box-shadow: 0 3px 12px rgba(255, 107, 138, 0.2);
+    animation: errorWiggle 0.4s ease-out;
+}
+
+@keyframes errorWiggle {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
 }
 
 @media (max-width: 480px) {
