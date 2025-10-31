@@ -75,6 +75,56 @@
                 console.error('Error:', error);
             }
         });
+
+        // יצירת כוכבים קבועים
+        function createStars() {
+            const starCount = 30;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                
+                star.style.left = x + 'px';
+                star.style.top = y + 'px';
+                
+                const delay = Math.random() * 3;
+                star.style.animationDelay = delay + 's';
+                
+                document.body.appendChild(star);
+            }
+        }
+
+        // יצירת כוכבי שביט נופלים
+        function createMeteor() {
+            const meteor = document.createElement('div');
+            meteor.className = 'meteor';
+            
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * window.innerHeight * 0.3;
+            
+            meteor.style.left = startX + 'px';
+            meteor.style.top = startY + 'px';
+            
+            document.body.appendChild(meteor);
+            
+            setTimeout(() => {
+                meteor.remove();
+            }, 2000);
+        }
+
+        // הפעלת כוכבי שביט בזמן אקראי
+        function startMeteorShower() {
+            createStars();
+            
+            setInterval(() => {
+                createMeteor();
+            }, Math.random() * 3000 + 3000);
+        }
+
+        // הפעלה בעת טעינת הדף
+        window.addEventListener('load', startMeteorShower);
     </script>
 </body>
 </html>
