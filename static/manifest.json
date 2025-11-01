@@ -1,6 +1,6 @@
 {
   "name": "מוריד שירים מיוטיוב",
-  "short_name": "TubeDownloader",
+  "short_name": "Tube",
   "description": "הורדת אודיו ישירות מיוטיוב",
   "start_url": "/",
   "display": "standalone",
